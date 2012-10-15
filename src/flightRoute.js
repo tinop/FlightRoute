@@ -8,7 +8,7 @@ var totalDistance = 0.0;
 //var lineIx = 0;
 var polyPath;
 
-var SAMPLES = 256;
+var SAMPLES = 512;
 
 
 var geocoderService = null;
@@ -20,7 +20,7 @@ var directionsService = null;
 
 var markerHome;
 //var markerDest;
-var markers = [];
+//var markers = [];
 
 // markers on the map, are sorted following the path
 var markersArray = [];
@@ -31,7 +31,7 @@ var wayPoints = new Array();
 
 /******/
 // index of the current selected mark (0..nMarker-1)
-var currentIndex=0;
+var currentIndex;
 
 var totTripTime;
 var totAlternateTime;
@@ -51,7 +51,7 @@ google.load("visualization", "1", {
   
 function load() {
 
-    currentIndex = 0;
+    currentIndex = -1;
 	
     // map options
     var myOptions = {
@@ -77,7 +77,7 @@ function load() {
             mousemarker = new google.maps.Marker({
                 position: elevations[e.row].location,
                 map: map,
-                icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                icon: "http://labs.google.com/ridefinder/images/mm_20_green.png"
             });
         } else {	
             mousemarker.setPosition(elevations[e.row].location);
@@ -94,30 +94,31 @@ function load() {
     // display fields in the map
     //map.controls[google.maps.ControlPosition.TOP].push(document.getElementById('info'));
 
+    addMarker(map.getCenter(), true);
 	
-    // home marker
-    markerHome = new google.maps.Marker({
-        position: map.getCenter(),
-        map: map,
-        draggable: true,
-        title: 'Click to zoom'
-    });
-	
-    markersArray.push(markerHome);
-    wayPoints.push(markerHome.getPosition());
-
-    //addWaypoint('1');
-	
-    google.maps.event.addListener(markerHome, 'dragend', function(e) { 
-        currentIndex = markerIndex(markerHome);
-        drawPath();
-        updateTable();
-    });	
-
-    google.maps.event.addListener(markerHome, 'click', function(e) { 
-        currentIndex = markerIndex(markerHome);
-    //this.setAnimation(animation.BOUNCE);
-    });
+//     // home marker
+//     markerHome = new google.maps.Marker({
+//         position: map.getCenter(),
+//         map: map,
+//         draggable: true,
+//         title: 'Click to zoom'
+//     });
+// 	
+//     markersArray.push(markerHome);
+//     wayPoints.push(markerHome.getPosition());
+// 
+//     //addWaypoint('1');
+// 	
+//     google.maps.event.addListener(markerHome, 'dragend', function(e) { 
+//         currentIndex = markerIndex(markerHome);
+//         drawPath();
+//         updateTable();
+//     });	
+// 
+//     google.maps.event.addListener(markerHome, 'click', function(e) { 
+//         currentIndex = markerIndex(markerHome);
+//     //this.setAnimation(animation.BOUNCE);
+//     });
 	
 	
 	
@@ -135,7 +136,9 @@ function addMarker(latLng, doQuery)
 {
     //destination = latLng;
 
-    wayPoints.push(latLng);		
+    wayPoints.push(latLng);
+    
+    
 
     // add a marker
     var markerShadow = new google.maps.MarkerImage(
@@ -149,7 +152,6 @@ function addMarker(latLng, doQuery)
         position: latLng, 
         map: map,
         draggable: true,
-        icon : "http://labs.google.com/ridefinder/images/mm_20_blue.png",
         shadow : markerShadow
     //animation: google.maps.Animation.DROP
     })
@@ -406,6 +408,15 @@ function drawPath(){
     var path = [];
     for (i=0;i<markersArray.length; i++)
     {
+      if(i==0){
+	markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+      }
+      else if(i == markersArray.length-1){
+	markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+      }
+      else{
+	markersArray[i].setIcon("http://labs.google.com/ridefinder/images/mm_20_blue.png");
+      }
         path.push(markersArray[i].getPosition());
     }
     polyPath.setPath(path);
