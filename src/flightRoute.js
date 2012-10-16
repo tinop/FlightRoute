@@ -160,6 +160,12 @@ function addMarker(latLng, doQuery)
         currentIndex = markerIndex(marker);
         drawPath();
         updateTable();
+    });
+
+    google.maps.event.addListener(marker, 'drag', function(e) { 
+        currentIndex = markerIndex(marker);
+        //drawPath();
+        updateTable();
     });	
 
     google.maps.event.addListener(marker, 'click', function(e) { 
@@ -240,8 +246,8 @@ function addWaypoint(marker, markerPrev)
     //var element3 = document.createElement("input");
     //element3.type = "text";
     //element3.value = latLong;
-    //cell3.appendChild(element3); 
-    cell3.innerHTML=latLong;
+    //cell3.appendChild(element3);   
+    cell3.innerHTML=String(latLong.lat().toFixed(2)+" "+latLong.lng().toFixed(2));
 	
     if(markerPrev == null)
     {
