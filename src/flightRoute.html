@@ -4,6 +4,8 @@
     <html lang="en" dir="ltr">
   <head>
     <title>FlightRoute</title>
+        <!-- Bootstrap -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
       @import "flightRoute.css";
     </style>
@@ -15,6 +17,7 @@
 
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyBVBMCQhDkUdOVjygNgnLzs-QnVAMqLejI&sensor=false&libraries=drawing,geometry"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
 
 
 
@@ -30,7 +33,7 @@ body { font-size: 14px; font-family:arial; line-height:20px;}
 
                   
             
-<table cellspacing="0" cellpadding="0" style="-moz-outline-width:8px; -moz-outline-radius:15px; -moz-outline-style:solid;-moz-outline-color:#838FBB;margin:20px;">
+<table class="table" >
     <tr>
         <td valign="top">
             <div id="map_canvas"></div>
@@ -42,61 +45,79 @@ body { font-size: 14px; font-family:arial; line-height:20px;}
             <div class="wText" id="coords"></div>
             <div  id="dist">distance: </div>
             <div class="wText" id="route">Route points:<br></div>
-                                    
-                                    
-            <input type="button" value="Add Row" onclick="addWaypoint('1')" />
-            <input type="button" value="Add Alternate" onclick="setAlternate('1')" />
-            <input type="button" value="Delete Row" onclick="removeWaypoint()" />
-                idx: <input type="text" id="index"> 
-                                    
-                <table id="waypointTable" width="350px" border="1">
-                    <tr>
-                        <td>  Freq: </td>
-                        <td>  C/S: </td>
-                        <td>  WayPoint: </td>
-                        <td>  MT: </td>
-                        <td>  ALT: </td>
-                        <td>  DIST: </td>
-                        <td>  EET: </td>
-                        <td>  ETO: </td>
-                        <td>  ATO: </td>
-                        <td>  Remark: </td>
-                    </tr>
-                    <!--<tr>
-                            <td><input type="checkbox" name="chk"/></td>
-                            <td> 1 </td>
-                            <td> <input type="text" /> </td>
-                    </tr>-->
-                </table>
-                                    
-                <div id="TotTrip">
-                    Total Time: <input type="text" id="totTrip"> min.
-                </div>
-                                    
-                <div id="TotDist">
-                    Total Dist : <input type="text" id="totDist"> NM.
-                </div>
-                                    
-                <table id="alternateTable" width="350px" border="1">
-                    <tr>
-                        <td>  Freq: </td>
-                        <td>  C/S: </td>
-                        <td>  WayPoint: </td>
-                        <td>  MT: </td>
-                        <td>  ALT: </td>
-                        <td>  DIST: </td>
-                        <td>  EET: </td>
-                        <td>  ETO: </td>
-                        <td>  ATO: </td>
-                        <td>  Remark: </td>
-                    </tr>
-                </table>
-                                    
-                <div id="TotAlternate">
-                    Total Alternate: <input type="text" "readonly" id="totAlternate"> min.
-                </div>
-                                    
-        </td>
+				    
+				    
+	    <input type="button" value="Add Row" onclick="addWaypoint('1')" />
+	    <input type="button" value="Add Alternate" onclick="setAlternate('1')" />
+	    <input type="button" value="Delete Row" onclick="removeWaypoint()" />
+		idx: <input type="text" id="index"> 
+				    
+		<table class="table table-striped table-hover" id="waypointTable">
+
+		
+		    <tr>
+			<th>  Freq: </th>
+			<th>  C/S: </th>
+			<th>  WayPoint: </th>
+			<th>  MT: </th>
+			<th>  ALT: </th>
+			<th>  DIST: </th>
+			<th>  EET: </th>
+			<th>  ETO: </th>
+			<th>  ATO: </th>
+			<th>  Remark: </th>
+		    </tr>
+		   
+
+
+		    <!--<tr>
+			    <td><input type="checkbox" name="chk"/></td>
+			    <td> 1 </td>
+			    <td> <input type="text" /> </td>
+		    </tr>-->
+		</table>
+				    
+		<div id="TotTrip">
+		    Total Time: <input type="text" id="totTrip"> min.
+		</div>
+				    
+		<div id="TotDist">
+		    Total Dist : <input type="text" id="totDist"> NM.
+		</div>
+				    
+		<table class="table table-striped table-hover" id="alternateTable" >
+
+		<thead>
+		    <tr>
+			<th>  Freq: </th>
+			<th>  C/S: </th>
+			<th>  WayPoint: </th>
+			<th>  MT: </th>
+			<th>  ALT: </th>
+			<th>  DIST: </th>
+			<th>  EET: </th>
+			<th>  ETO: </th>
+			<th>  ATO: </th>
+			<th>  Remark: </th>
+		    </tr>
+		</thead>
+		  <tbody>
+		    <tr>
+			<td>  12 </td>
+			<td>  sfg </td>
+		    </tr>
+		    		    <tr>
+			<td>  234 </td>
+			<td>  rrd </td>
+		    </tr>
+		    </tbody>
+		</table>
+				    
+		<div id="TotAlternate">
+		    Total Alternate: <input type="text" "readonly" id="totAlternate"> min.
+		</div>
+				    
+	</td>
     </tr>
 </table>
 

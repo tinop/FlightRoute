@@ -168,8 +168,9 @@ function addMarker(latLng, doQuery)
     });
 
     google.maps.event.addListener(marker, 'rightclick', function(e) { 
+	marker.setMap(null);
         removeWaypoint(marker);
-        marker.setMap(null);
+	marker = null;
     });
 		
     // add marker to the array
@@ -236,10 +237,11 @@ function addWaypoint(marker, markerPrev)
 	
     // WAYPOINT
     var cell3 = newRow.insertCell(2);
-    var element3 = document.createElement("input");
-    element3.type = "text";
-    element3.value = latLong;
-    cell3.appendChild(element3); 
+    //var element3 = document.createElement("input");
+    //element3.type = "text";
+    //element3.value = latLong;
+    //cell3.appendChild(element3); 
+    cell3.innerHTML=latLong;
 	
     if(markerPrev == null)
     {
@@ -253,10 +255,12 @@ function addWaypoint(marker, markerPrev)
     //MT = 5;
 	
     var cell4 = newRow.insertCell(3);
-    var element4 = document.createElement("input");
-    element4.type = "text";
-    element4.value = MT.toFixed(0);
-    cell4.appendChild(element4); 
+    //var element4 = document.createElement("input");
+    //element4.type = "text";
+    //element4.value = MT.toFixed(0);
+    //cell4.appendChild(element4); 
+    
+    cell4.innerHTML=MT.toFixed(0);
 	
     // ALT
     var cell5 = newRow.insertCell(4);
@@ -269,19 +273,21 @@ function addWaypoint(marker, markerPrev)
 	
 	
     var cell6 = newRow.insertCell(5);
-    var element6 = document.createElement("input");
-    element6.type = "text";
-    element6.value = dist.toFixed(1);
-    cell6.appendChild(element6); 
+    //var element6 = document.createElement("input");
+    //element6.type = "text";
+    //element6.value = dist.toFixed(1);
+    //cell6.appendChild(element6); 
+    cell6.innerHTML=dist.toFixed(1);
 	
     // EET
     var speed = 90;
 	
     var cell7 = newRow.insertCell(6);
-    var element7 = document.createElement("input");
-    element7.type = "text";
-    element7.value = (dist/speed*60).toFixed(1);
-    cell7.appendChild(element7); 
+    //var element7 = document.createElement("input");
+    //element7.type = "text";
+    //element7.value = (dist/speed*60).toFixed(1);
+    //cell7.appendChild(element7); 
+    cell7.innerHTML=(dist/speed*60).toFixed(1);
 // ETO
 // ATO
 // REMARK
