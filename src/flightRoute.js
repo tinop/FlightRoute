@@ -64,10 +64,16 @@ function load() {
     // create map
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
+    
+    // map click listener	
+    google.maps.event.addListener(map, 'click', function(event){
+        addMarker(event.latLng, true);
+    });
 
+    
+    // Alt chart
     chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
 
-  
     geocoderService = new google.maps.Geocoder();
     elevationService = new google.maps.ElevationService();
     directionsService = new google.maps.DirectionsService(); 
@@ -84,44 +90,13 @@ function load() {
         }
     }); 
 		
-    // map click listener	
-    google.maps.event.addListener(map, 'click', function(event){
-        addMarker(event.latLng, true);
-    });
-    
-	
-		
+
     // display fields in the map
     //map.controls[google.maps.ControlPosition.TOP].push(document.getElementById('info'));
 
     addMarker(map.getCenter(), true);
 	
-//     // home marker
-//     markerHome = new google.maps.Marker({
-//         position: map.getCenter(),
-//         map: map,
-//         draggable: true,
-//         title: 'Click to zoom'
-//     });
-// 	
-//     markersArray.push(markerHome);
-//     wayPoints.push(markerHome.getPosition());
-// 
-//     //addWaypoint('1');
-// 	
-//     google.maps.event.addListener(markerHome, 'dragend', function(e) { 
-//         currentIndex = markerIndex(markerHome);
-//         drawPath();
-//         updateTable();
-//     });	
-// 
-//     google.maps.event.addListener(markerHome, 'click', function(e) { 
-//         currentIndex = markerIndex(markerHome);
-//     //this.setAnimation(animation.BOUNCE);
-//     });
-	
-	
-	
+
     var polyOptions = {
         strokeColor: '#FF0000',
         strokeOpacity: 1.0,
@@ -139,7 +114,6 @@ function addMarker(latLng, doQuery)
     wayPoints.push(latLng);
     
     
-
     // add a marker
     var markerShadow = new google.maps.MarkerImage(
         "http://labs.google.com/ridefinder/images/mm_20_shadow.png",
@@ -158,7 +132,7 @@ function addMarker(latLng, doQuery)
 		
     google.maps.event.addListener(marker, 'dragend', function(e) { 
         currentIndex = markerIndex(marker);
-        drawPath();
+        drawPath(false);
         updateTable();
     });
 
@@ -185,7 +159,7 @@ function addMarker(latLng, doQuery)
     // make this marker the current one
     currentIndex = markerIndex(marker);
     setTimeout(function() {
-        drawPath();
+        drawPath(true);
     }, 0);
 
     //drawPath();
@@ -196,13 +170,13 @@ function updateTable()
 {
     deleteTable();
  
-    addWaypoint(markersArray[0], null);
+    addTableRow(markersArray[0], null);
 
     if(markersArray.length >1)
     {
         for(var i = 1; i<markersArray.length; i++)
         {
-            addWaypoint(markersArray[i], markersArray[i-1]);
+            addTableRow(markersArray[i], markersArray[i-1]);
         }
     }
 
@@ -224,7 +198,7 @@ function deleteTable()
 
 //**************************//
 // Add a new waypoint. Called from map.click()
-function addWaypoint(marker, markerPrev)
+function addTableRow(marker, markerPrev)
 {
     var latLong = marker.getPosition();
 	
@@ -340,7 +314,7 @@ function setAlternate()
 function removeWaypoint(marker)
 {
     markersArray.splice(markerIndex(marker), 1);
-    drawPath();
+    drawPath(true);
     updateTable();
 }
 
@@ -415,21 +389,24 @@ function updateDistance(){
     }
 }
 
-function drawPath(){
+function drawPath(setMarker){
     //var path = [markerHome.getPosition(), markersArray[markersArray.length-1].getPosition()];
     var path = [];
     for (i=0;i<markersArray.length; i++)
     {
-      if(i==0){
-	markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+      if(setMarker)
+      {
+	if(i==0){
+	  markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+	}
+	else if(i == markersArray.length-1){
+	  markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+	}
+	else{
+	  markersArray[i].setIcon("http://labs.google.com/ridefinder/images/mm_20_blue.png");
+	}
       }
-      else if(i == markersArray.length-1){
-	markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
-      }
-      else{
-	markersArray[i].setIcon("http://labs.google.com/ridefinder/images/mm_20_blue.png");
-      }
-        path.push(markersArray[i].getPosition());
+      path.push(markersArray[i].getPosition());
     }
     polyPath.setPath(path);
 
