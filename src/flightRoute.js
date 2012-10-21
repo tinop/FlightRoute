@@ -5,7 +5,7 @@
 var map = null;
 var chart = null;
 var totalDistance = 0.0;
-//var lineIx = 0;
+
 var polyPath;
 
 var SAMPLES = 512;
@@ -14,20 +14,14 @@ var SAMPLES = 512;
 var geocoderService = null;
 var elevationService = null;
 var directionsService = null; 
- var mousemarker = null;
-   var polyline = null;
-  var elevations = null;
+var mousemarker = null;
+var polyline = null;
+var elevations = null;
 
-var markerHome;
-//var markerDest;
-//var markers = [];
 
 // markers on the map, are sorted following the path
 var markersArray = [];
-
-//var origin = null;
-//var destination = null;
-var wayPoints = new Array();
+var locationsArray = [];
 
 /******/
 // index of the current selected mark (0..nMarker-1)
@@ -40,19 +34,19 @@ var totTripDist;
 // Load the Visualization API and the piechart package.
 google.load("visualization", "1", {
     packages: ["columnchart"]
-    }); 
+}); 
 
 
  // Load the Visualization API and the piechart package.
-  google.load("visualization", "1", {packages: ["columnchart"]});
-  
+ google.load("visualization", "1", {packages: ["columnchart"]});
+
   // Set a callback to run when the Google Visualization API is loaded.
   google.setOnLoadCallback(load);
   
-function load() {
+  function load() {
 
     currentIndex = -1;
-	
+
     // map options
     var myOptions = {
         center: new google.maps.LatLng(46.5, 8),
@@ -60,7 +54,7 @@ function load() {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         draggableCursor:'crosshair'
     };
-	
+
     // create map
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
@@ -89,13 +83,13 @@ function load() {
             mousemarker.setPosition(elevations[e.row].location);
         }
     }); 
-		
+
 
     // display fields in the map
     //map.controls[google.maps.ControlPosition.TOP].push(document.getElementById('info'));
 
     addMarker(map.getCenter(), true);
-	
+
 
     var polyOptions = {
         strokeColor: '#FF0000',
@@ -104,16 +98,11 @@ function load() {
         map: map
     };
     polyPath = new google.maps.Polyline(polyOptions);
-		
+
 }
 
 function addMarker(latLng, doQuery)
-{
-    //destination = latLng;
-
-    wayPoints.push(latLng);
-    
-    
+{      
     // add a marker
     var markerShadow = new google.maps.MarkerImage(
         "http://labs.google.com/ridefinder/images/mm_20_shadow.png",
@@ -121,7 +110,7 @@ function addMarker(latLng, doQuery)
         null,
         new google.maps.Point(6,20) 
         );		
-		
+
     var marker = new google.maps.Marker({
         position: latLng, 
         map: map,
@@ -129,11 +118,12 @@ function addMarker(latLng, doQuery)
         shadow : markerShadow
     //animation: google.maps.Animation.DROP
     })
-		
+
     google.maps.event.addListener(marker, 'dragend', function(e) { 
         currentIndex = markerIndex(marker);
         drawPath(false);
         updateTable();
+        codeLatLng(marker.getPosition());
     });
 
     google.maps.event.addListener(marker, 'drag', function(e) { 
@@ -145,19 +135,21 @@ function addMarker(latLng, doQuery)
     google.maps.event.addListener(marker, 'click', function(e) { 
         currentIndex = markerIndex(marker);
     //marker.setAnimation(google.maps.Animation.DROP);
-    });
+});
 
     google.maps.event.addListener(marker, 'rightclick', function(e) { 
-	marker.setMap(null);
-        removeWaypoint(marker);
-	marker = null;
-    });
-		
+       marker.setMap(null);
+       removeWaypoint(marker);
+       marker = null;
+   });
+
     // add marker to the array
     markersArray.splice(currentIndex+1,0, marker);
 
     // make this marker the current one
     currentIndex = markerIndex(marker);
+    codeLatLng(marker.getPosition());
+
     setTimeout(function() {
         drawPath(true);
     }, 0);
@@ -169,7 +161,7 @@ function addMarker(latLng, doQuery)
 function updateTable()
 {
     deleteTable();
- 
+
     addTableRow(markersArray[0], null);
 
     if(markersArray.length >1)
@@ -201,20 +193,21 @@ function deleteTable()
 function addTableRow(marker, markerPrev)
 {
     var latLong = marker.getPosition();
-	
+
     // 1. Insert a new row into the table
     //index = document.getElementById('index');
     var table = document.getElementById('waypointTable');
-	
+
     var rowCount = table.rows.length;
     var newRow = table.insertRow(rowCount);
- 
+
     // FREQ
     var cell1 = newRow.insertCell(0);
-	
+
     // C/S
     var cell2 = newRow.insertCell(1);
-	
+    //cell2.innerHTML=String(codeLatLng(latLong));
+
     // WAYPOINT
     var cell3 = newRow.insertCell(2);
     //var element3 = document.createElement("input");
@@ -222,7 +215,7 @@ function addTableRow(marker, markerPrev)
     //element3.value = latLong;
     //cell3.appendChild(element3);   
     cell3.innerHTML=String(latLong.lat().toFixed(2)+" "+latLong.lng().toFixed(2));
-	
+
     if(markerPrev == null)
     {
         return;
@@ -233,7 +226,7 @@ function addTableRow(marker, markerPrev)
 
     MT = getMT(markerPrev, marker);
     //MT = 5;
-	
+
     var cell4 = newRow.insertCell(3);
     //var element4 = document.createElement("input");
     //element4.type = "text";
@@ -241,27 +234,27 @@ function addTableRow(marker, markerPrev)
     //cell4.appendChild(element4); 
     
     cell4.innerHTML=MT.toFixed(0);
-	
+
     // ALT
     var cell5 = newRow.insertCell(4);
-	
+
     // DIST
     var dist = 0;
 
 
     dist = getDist(markerPrev.getPosition(), marker.getPosition());
-	
-	
+
+
     var cell6 = newRow.insertCell(5);
     //var element6 = document.createElement("input");
     //element6.type = "text";
     //element6.value = dist.toFixed(1);
     //cell6.appendChild(element6); 
     cell6.innerHTML=dist.toFixed(1);
-	
+
     // EET
     var speed = 90;
-	
+
     var cell7 = newRow.insertCell(6);
     //var element7 = document.createElement("input");
     //element7.type = "text";
@@ -273,7 +266,7 @@ function addTableRow(marker, markerPrev)
 // REMARK
 
 
-	
+
 }
 
 
@@ -288,9 +281,9 @@ function markerIndex(marker) {
 function setAlternate()
 {
     var table = document.getElementById('alternateTable');
-	
+
     var rowCount = table.rows.length;
-	
+
     try{
         var row;
         if(rowCount == 0){
@@ -299,7 +292,7 @@ function setAlternate()
         else{
             row = table.rows[0];
         }
-	
+
         var element = document.createElement("input");
         element.type = "text";
         element.value = 'alternate';
@@ -307,7 +300,7 @@ function setAlternate()
     }catch(e) {
         alert(e);
     }
-		
+
 }
 
 // unused yet
@@ -322,7 +315,7 @@ function getMT(marker1, marker2)
 {
     var heading = google.maps.geometry.spherical.computeHeading(marker1.getPosition(),
         marker2.getPosition());
-		
+
     return heading;
 }
 
@@ -340,17 +333,17 @@ function updateTotalTrip()
     try {
         var table = document.getElementById('waypointTable');
         var rowCount = table.rows.length;
- 
+
         for(var i=2; i<rowCount; i++) {
-		
+
             var row = table.rows[i];
-			
+
             // distance
             var dist = row.cells[5].childNodes[0];
             if(null != dist) {
                 totTripDist += parseInt(dist.value);
             }
-			
+
             // time
             var time = row.cells[6].childNodes[0];
 
@@ -360,12 +353,12 @@ function updateTotalTrip()
     }catch(e) {
         alert(e);
     }
-	
+
     document.getElementById("totTrip").value = totTripTime.toString();
     //document.getElementById("dist").value = 'Total Distance: '+ totalDistance.toFixed(3)+ ' NM';
     document.getElementById("totDist").value = totTripDist.toString();
-	
-	
+
+
 }
 
 function updateTotalAlternate()
@@ -373,16 +366,15 @@ function updateTotalAlternate()
 
 }
 
-	
+
 //***************************//
 
 function updateDistance(){
 
-    if (wayPoints.length > 1){
-	
-        dist = google.maps.geometry.spherical.computeDistanceBetween(wayPoints[wayPoints.length-2], wayPoints[wayPoints.length-1]);
+    if (markersArray.length > 1){
+
+        dist = google.maps.geometry.spherical.computeDistanceBetween(markersArray[markersArray.length-2], markersArray[markersArray.length-1]);
         //var heading = google.maps.geometry.spherical.computeHeading(path[0], path[1]);
-        //dist = wayPoints[wayPoints.length-2].distanceFrom(event.latLng) / 1000;
         totalDistance += dist/ 1000 /1.8;
         //document.getElementById("dist").innerHTML = 'Total Distance: ';
         document.getElementById("dist").innerHTML = 'Total Distance: '+ totalDistance.toFixed(3)+ ' NM';
@@ -390,29 +382,28 @@ function updateDistance(){
 }
 
 function drawPath(setMarker){
-    //var path = [markerHome.getPosition(), markersArray[markersArray.length-1].getPosition()];
     var path = [];
     for (i=0;i<markersArray.length; i++)
     {
       if(setMarker)
       {
-	if(i==0){
-	  markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
-	}
-	else if(i == markersArray.length-1){
-	  markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
-	}
-	else{
-	  markersArray[i].setIcon("http://labs.google.com/ridefinder/images/mm_20_blue.png");
-	}
-      }
-      path.push(markersArray[i].getPosition());
-    }
-    polyPath.setPath(path);
-
-    updateElevation();
+       if(i==0){
+         markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+     }
+     else if(i == markersArray.length-1){
+         markersArray[i].setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+     }
+     else{
+         markersArray[i].setIcon("http://labs.google.com/ridefinder/images/mm_20_blue.png");
+     }
+ }
+ path.push(markersArray[i].getPosition());
 }
-	 
+polyPath.setPath(path);
+
+updateElevation();
+}
+
            // Trigger the elevation query for point to point
   // or submit a directions request for the path between points
   function updateElevation() {
@@ -424,15 +415,15 @@ function drawPath(setMarker){
         var latlngs = [];
         for (var i=0; i< markersArray.length;i++) {
           latlngs.push(markersArray[i].getPosition())
-        }
-        elevationService.getElevationAlongPath({
+      }
+      elevationService.getElevationAlongPath({
           path: latlngs,
           samples: SAMPLES
-        }, plotElevation);
+      }, plotElevation);
       //}
-    }
   }
-  
+}
+
 // Takes an array of ElevationResult objects, draws the path on the map
 // and plots the elevation profile on a GViz ColumnChart
 function plotElevation(results) {
@@ -441,14 +432,14 @@ function plotElevation(results) {
     for (var i = 0; i < markersArray.length; i++) {
         path.push(elevations[i].location);
     }
-    if (polyline) {
-        polyline.setMap(null);
-    }
-    polyline = new google.maps.Polyline({
-        path: path,
-        strokeColor: "#000000",
-        map: map
-    });
+    // if (polyline) {
+    //     polyline.setMap(null);
+    // }
+    // polyline = new google.maps.Polyline({
+    //     path: path,
+    //     strokeColor: "#000000",
+    //     map: map
+    // });
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Sample');
     data.addColumn('number', 'Elevation');
@@ -496,16 +487,16 @@ function encodePolyline() {
 
     var html = '';
     html += 'new GPolyline.fromEncoded({\n';
-    html += '  color: "#0000ff",\n';
-    html += '  weight: 4,\n';
-    html += '  opacity: 0.8,\n';
-    html += '  points: "'+encodedPoints+'",\n';
-    html += '  levels: "'+encodedLevels+'",\n';
-    html += '  zoomFactor: 16,\n';
-    html += '  numLevels: 4\n';
-    html += '});\n';
+        html += '  color: "#0000ff",\n';
+        html += '  weight: 4,\n';
+        html += '  opacity: 0.8,\n';
+        html += '  points: "'+encodedPoints+'",\n';
+        html += '  levels: "'+encodedLevels+'",\n';
+        html += '  zoomFactor: 16,\n';
+        html += '  numLevels: 4\n';
+        html += '});\n';
 
-    return html;
+return html;
 }
 
 function encodeSignedNumber(num) {
@@ -536,5 +527,41 @@ function encodeNumber(num) {
     if (mousemarker != null) {
       mousemarker.setMap(null);
       mousemarker = null;
-    }
   }
+}
+
+function codeLatLng(latlng) {
+
+    currentAddress = ""; 
+    geocoderService.geocode({'latLng': latlng}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            if (results[1]) {
+              //map.setZoom(11);
+              //marker = new google.maps.Marker({
+              //    position: latlng,
+              //    map: map
+              //});
+              //infowindow.setContent(results[1].formatted_address);
+              //infowindow.open(map, marker);
+              currentAddress = results[1].formatted_address;
+              var table = document.getElementById('waypointTable');
+              var tbody = document.getElementById('waypointTable').getElementsByTagName("tbody")[0];
+              var i = 0;
+              var rows = tbody.rows;
+         //for (var r = 0; r < 4; r++) {
+           var row = rows[currentIndex+1];
+            //for (var c = 0; c < 4; c++) {
+                var cell = row.cells[1];
+                cell.innerHTML = currentAddress;
+         //}
+     //}
+
+              //return string;
+          } else {
+              alert('No results found');
+          }
+      } else {
+        alert('Geocoder failed due to: ' + status);
+    }
+});
+}
