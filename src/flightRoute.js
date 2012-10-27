@@ -102,7 +102,7 @@ google.load("visualization", "1", {
 }
 
 function addMarker(latLng, doQuery)
-{      
+{     
     // add a marker
     var markerShadow = new google.maps.MarkerImage(
         "http://labs.google.com/ridefinder/images/mm_20_shadow.png",
@@ -118,6 +118,12 @@ function addMarker(latLng, doQuery)
         shadow : markerShadow
     //animation: google.maps.Animation.DROP
     })
+
+    var table = new FlightTable();
+    table.addMarker(marker,1);
+    var v1 = table.getWaypoint(0);
+    table.updateAddress(0);
+    var v1 = table.getWaypoint(0);
 
     google.maps.event.addListener(marker, 'dragend', function(e) { 
         currentIndex = markerIndex(marker);
@@ -135,6 +141,10 @@ function addMarker(latLng, doQuery)
     google.maps.event.addListener(marker, 'click', function(e) { 
         currentIndex = markerIndex(marker);
     //marker.setAnimation(google.maps.Animation.DROP);
+
+
+
+
 });
 
     google.maps.event.addListener(marker, 'rightclick', function(e) { 
