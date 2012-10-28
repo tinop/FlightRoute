@@ -2,6 +2,10 @@
 //var routePoints = new Array();
 //var routeMarkers = new Array();
 //var routeOverlays = new Array();
+
+// Principal FlightTable;
+var mFlighTable = null;
+
 var map = null;
 var chart = null;
 var totalDistance = 0.0;
@@ -87,7 +91,7 @@ google.load("visualization", "1", {
 
     // display fields in the map
     //map.controls[google.maps.ControlPosition.TOP].push(document.getElementById('info'));
-
+	mFlighTable = new FlightTable();
     addMarker(map.getCenter(), true);
 
 
@@ -119,17 +123,17 @@ function addMarker(latLng, doQuery)
     //animation: google.maps.Animation.DROP
     })
 
-    var table = new FlightTable();
-    table.addMarker(marker,1);
-    var v1 = table.getWaypoint(0);
-    table.updateAddress(0);
-    var v1 = table.getWaypoint(0);
-
     google.maps.event.addListener(marker, 'dragend', function(e) { 
+    	console.log('dragEnd');
         currentIndex = markerIndex(marker);
         drawPath(false);
         updateTable();
         codeLatLng(marker.getPosition());
+    });
+    
+   google.maps.event.addListener(marker, 'dragstart', function(e) { 
+    	console.log('dragStart');
+        mFlighTable.setActiveMarker(marker);
     });
 
     google.maps.event.addListener(marker, 'drag', function(e) { 
@@ -139,13 +143,11 @@ function addMarker(latLng, doQuery)
     });	
 
     google.maps.event.addListener(marker, 'click', function(e) { 
+    		console.log('click');
         currentIndex = markerIndex(marker);
+        mFlighTable.setActiveMarker(marker);
     //marker.setAnimation(google.maps.Animation.DROP);
-
-
-
-
-});
+	});
 
     google.maps.event.addListener(marker, 'rightclick', function(e) { 
        marker.setMap(null);
@@ -153,8 +155,10 @@ function addMarker(latLng, doQuery)
        marker = null;
    });
 
+
     // add marker to the array
     markersArray.splice(currentIndex+1,0, marker);
+    mFlighTable.addMarker(marker);
 
     // make this marker the current one
     currentIndex = markerIndex(marker);
@@ -172,13 +176,16 @@ function updateTable()
 {
     deleteTable();
 
-    addTableRow(markersArray[0], null);
+    //addTableRow(markersArray[0], null);
+    mFlighTable.getWaypoint[0];
+    
+    addTableRow(mFlighTable.getWaypoint[0].marker, null);
 
-    if(markersArray.length >1)
+    if(mFlighTable.size >1)
     {
-        for(var i = 1; i<markersArray.length; i++)
+        for(var i = 1; i<mFlighTable.size; i++)
         {
-            addTableRow(markersArray[i], markersArray[i-1]);
+            addTableRow(mFlighTable.getWaypoint[i].marker, mFlighTable.getWaypoint[i-1].marker);
         }
     }
 
