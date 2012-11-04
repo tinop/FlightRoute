@@ -1,6 +1,8 @@
 //******************************************
 //******************************************
 var geocoderService = null;
+var directionsService = null;
+var KM2NM = 1.852;
 
 function FlightTable()
 {
@@ -18,20 +20,25 @@ FlightTable.prototype.addMarker = function(marker)
    if (this.currentIndex >= this.waypointArray.length)
       alert('currentIndex out of bound!');
 
+	this.currentIndex++;
+
+   	// create a Waypoint for this marker
+   var waypoint = new Waypoint(marker);
    try
-   {
-      var waypoint = new Waypoint(marker);
-      waypoint.updateAddress();
-      waypoint.updateAddress();
-      this.waypointArray.splice(this.currentIndex + 1, 0, waypoint);
+   {    //waypoint.updateAddress();
+
+		// add the waypoint to the array
+      this.waypointArray.splice(this.currentIndex, 0, waypoint);
    }
    catch(err)
    {
       alert(err.message);
    }
+   
    var id = marker.__gm_id;
+   
+   this.update(this.currentIndex);
 
-   this.currentIndex++;
    //todo
 }
 
@@ -56,6 +63,28 @@ FlightTable.prototype.updateAddress = function(index)
    {
       alert(err.message);
    }
+}
+
+//******************************************
+// Uptade MT and Dist of this wypoint and the successive one,
+// if exists 
+FlightTable.prototype.update = function(index)
+{
+	if(index > 0)
+	{
+		
+		this.waypointArray[index].MT  = this.getMT(index-1, index);
+		this.waypointArray[index].dist  = this.getDistance(index-1, index);
+	}
+	
+	   
+   if(index < this.waypointArray.length-1)
+	{
+		
+		this.waypointArray[index+1].MT  = this.getMT(index, index +1);
+		this.waypointArray[index+1].Distance  = this.getDistance(index, index+1);
+	}
+	
 }
 //******************************************
 FlightTable.prototype.getWaypoint = function(index)
@@ -95,6 +124,22 @@ FlightTable.prototype.size = function(marker)
    return this.waypointArray.length;
 }
 
+FlightTable.prototype.getMT = function(index1, index2)
+{
+	var pos1 = this.waypointArray[index1].marker.getPosition();   var pos2 = this.waypointArray[index2].marker.getPosition();
+	var heading = google.maps.geometry.spherical.computeHeading(pos1, pos2);
+	return heading;
+}
+
+FlightTable.prototype.getDistance = function(index1, index2)
+{
+	var pos1 = this.waypointArray[index1].marker.getPosition();
+   var pos2 = this.waypointArray[index2].marker.getPosition();
+
+	var distance = google.maps.geometry.spherical.computeDistanceBetween(pos1, pos2)/1000*KM2NM;
+	return distance;
+}
+
 
 //******************************************
 //******************************************
@@ -104,6 +149,12 @@ function Waypoint(marker)
 {
    this.marker = marker;
    this.address = null;
+   
+   // MT to reach this Waypoint
+   this.MT = 0;
+   
+   // distance from the previous Wayoint
+   this.dist = 0;
 }
 
 Waypoint.prototype.setAddress = function (address)

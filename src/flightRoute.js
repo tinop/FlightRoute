@@ -22,12 +22,11 @@ var elevations = null;
 
 /******/
 // index of the current selected mark (0..nMarker-1)
-var currentIndex;
 
 var totTripTime;
 var totAlternateTime;
 var totTripDist;
-var addresses = [];
+
 
 // Load the Visualization API and the piechart package.
 google.load("visualization", "1",
@@ -47,7 +46,7 @@ google.setOnLoadCallback(load);
 function load()
 {
 
-   currentIndex = -1;
+
 
    // map options
    var myOptions =
@@ -124,7 +123,7 @@ function addMarker(latLng, doQuery)
    google.maps.event.addListener(marker, 'dragend', function(e)
    {
       console.log('dragEnd');
-      ////currentIndex = markerIndex(marker);
+
       drawPath(false);
       updateTable();
       setLatLong (marker.getPosition(),mFlightTable.getMarkerIndex(marker));
@@ -140,7 +139,7 @@ function addMarker(latLng, doQuery)
 
    google.maps.event.addListener(marker, 'drag', function(e)
    {
-      ////currentIndex = markerIndex(marker);
+		mFlightTable.update(mFlightTable.getMarkerIndex(marker))
       //drawPath();
       updateTable();
    });
@@ -148,7 +147,6 @@ function addMarker(latLng, doQuery)
    google.maps.event.addListener(marker, 'click', function(e)
    {
       console.log('click');
-      ////currentIndex = markerIndex(marker);
       mFlightTable.setActiveMarker(marker);
       //marker.setAnimation(google.maps.Animation.DROP);
    });
@@ -163,9 +161,7 @@ function addMarker(latLng, doQuery)
    // add marker to the array
    mFlightTable.addMarker(marker);
    setLatLong (marker.getPosition(),mFlightTable.getMarkerIndex(marker));
-   //setLatLong (marker.getPosition(), addresses,mFlightTable.getMarkerIndex(marker));
-   // make this marker the current one
-   //currentIndex = markerIndex(marker);
+
    //mFlightTable.updateAddress(mFlightTable.getMarkerIndex(marker));
    //codeLatLng(marker.getPosition());
 
@@ -184,13 +180,13 @@ function updateTable()
 
 
 
-   addTableRow(mFlightTable.getWaypoint(0).marker, null);
+   //addTableRow(mFlightTable.getWaypoint(0).marker, null);
 
    if (mFlightTable.size() > 1)
    {
-      for (var i = 1; i < mFlightTable.size(); i++)
+      for (var i = 0; i < mFlightTable.size(); i++)
       {
-         addTableRow(mFlightTable.getWaypoint(i).marker, mFlightTable.getWaypoint(i - 1).marker);
+         addTableRow(mFlightTable.getWaypoint(i));
       }
    }
 
@@ -212,9 +208,9 @@ function deleteTable()
 
 //**************************//
 // Add a new waypoint. Called from map.click()
-function addTableRow(marker, markerPrev)
+function addTableRow(waypoint)
 {
-   var latLong = marker.getPosition();
+   var latLong = waypoint.marker.getPosition();
 
    // 1. Insert a new row into the table
    //index = document.getElementById('index');
@@ -224,69 +220,50 @@ function addTableRow(marker, markerPrev)
    var newRow = table.insertRow(rowCount);
 
    // FREQ
-   var cell1 = newRow.insertCell(0);
+   //var cell1 = newRow.insertCell(0);
 
    // C/S
-   var cell2 = newRow.insertCell(1);
-   cell2.innerHTML=String(mFlightTable.getWaypoint(mFlightTable.getMarkerIndex(marker)).address);
+   var cell2 = newRow.insertCell(0);
+   cell2.innerHTML=String(waypoint.address);
 
    // WAYPOINT
-   var cell3 = newRow.insertCell(2);
-   //var element3 = document.createElement("input");
-   //element3.type = "text";
-   //element3.value = latLong;
-   //cell3.appendChild(element3);  
+   var cell3 = newRow.insertCell(1);
    cell3.innerHTML = String(latLong.lat().toFixed(2) + " " + latLong.lng().toFixed(2));
 
-   if (markerPrev == null)
-   {
-      return;
-   }
 
    // MT
    var MT = 0;
 
-   MT = getMT(markerPrev, marker);
-   //MT = 5;
+   //MT = getMT(markerPrev, marker);
+   MT = waypoint.MT;
 
-   var cell4 = newRow.insertCell(3);
-   //var element4 = document.createElement("input");
-   //element4.type = "text";
-   //element4.value = MT.toFixed(0);
-   //cell4.appendChild(element4);
-
+   var cell4 = newRow.insertCell(2);
    cell4.innerHTML = MT.toFixed(0);
 
    // ALT
-   var cell5 = newRow.insertCell(4);
+   var cell5 = newRow.insertCell(3);
 
    // DIST
    var dist = 0;
 
-   dist = getDist(markerPrev.getPosition(), marker.getPosition());
+   //dist = getDist(markerPrev.getPosition(), marker.getPosition());
+	dist = waypoint.dist; 
 
-   var cell6 = newRow.insertCell(5);
-   //var element6 = document.createElement("input");
-   //element6.type = "text";
-   //element6.value = dist.toFixed(1);
-   //cell6.appendChild(element6);
+   var cell6 = newRow.insertCell(4);
    cell6.innerHTML = dist.toFixed(1);
 
    // EET
    var speed = 90;
 
-   var cell7 = newRow.insertCell(6);
-   //var element7 = document.createElement("input");
-   //element7.type = "text";
-   //element7.value = (dist/speed*60).toFixed(1);
-   //cell7.appendChild(element7);
+   var cell7 = newRow.insertCell(5);
    cell7.innerHTML = (dist / speed * 60).toFixed(1);
+   
    // ETO
-   var cell8 = newRow.insertCell(7);
+   var cell8 = newRow.insertCell(6);
    // ATO
-   var cell9 = newRow.insertCell(8);
+   var cell9 = newRow.insertCell(7);
    // REMARK
-	var cell10 = newRow.insertCell(9);
+	var cell10 = newRow.insertCell(8);
 }
 
 
@@ -360,14 +337,14 @@ function updateTotalTrip()
          var row = table.rows[i];
 
          // distance
-         var dist = row.cells[5].childNodes[0];
+         var dist = row.cells[4].childNodes[0];
          if (null != dist)
          {
             totTripDist += parseInt(dist.value);
          }
 
          // time
-         var time = row.cells[6].childNodes[0];
+         var time = row.cells[5].childNodes[0];
 
          totTripTime += parseInt(time.value);
 
@@ -378,9 +355,9 @@ function updateTotalTrip()
       alert(e);
    }
 
-   document.getElementById("totTrip").value = totTripTime.toString();
+   //document.getElementById("totTrip").value = totTripTime.toString();
    //document.getElementById("dist").value = 'Total Distance: '+ totalDistance.toFixed(3)+ ' NM';
-   document.getElementById("totDist").value = totTripDist.toString();
+  //document.getElementById("totDist").value = totTripDist.toString();
 
 }
 
@@ -524,7 +501,22 @@ function setLatLong (latlng,i)
             //});
             //infowindow.setContent(results[1].formatted_address);
             //infowindow.open(map, marker);
+            //for (var i = 0 ; i< results.length; i++)
+            //{
+            //currentAddress = results[0].formatted_address + " % ";
             currentAddress = results[1].formatted_address;
+            //currentAddress += results[2].formatted_address+ " % ";
+            //currentAddress += results[3].formatted_address+ " % ";
+            //currentAddress += results[4].formatted_address+ " % ";
+            //currentAddress += results[5].formatted_address+ " % ";
+            //currentAddress += results[0].formatted_address+ " % ";
+            //}
+            
+            currentAddress = currentAddress.replace(/^[\s\d]+/, '');
+
+            locationName = currentAddress.split(",");
+            
+            document.getElementById('textArea').value = locationName[0];
             //var table = document.getElementById('waypointTable');
             //var tbody = document.getElementById('waypointTable').getElementsByTagName("tbody")[0];
             //var i = 0;
@@ -535,14 +527,13 @@ function setLatLong (latlng,i)
             //var cell = row.cells[1];
             //cell.innerHTML = currentAddress;
             
-            addresses[i] = currentAddress;
 
             // 1. Insert a new row into the table
             //index = document.getElementById('index');
             var x = document.getElementById('waypointTable').rows[i+1].cells;
 
-            x[1].innerHTML = currentAddress; 
-            mFlightTable.getWaypoint(i).setAddress(currentAddress);
+            x[0].innerHTML = locationName[0]; 
+            mFlightTable.getWaypoint(i).setAddress(locationName[0]);
 
             //}
             //}

@@ -1,141 +1,298 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-    <html lang="en" dir="ltr">
-  <head>
-    <title>FlightRoute</title>
-        <!-- Bootstrap -->
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <style type="text/css">
-      @import "flightRoute.css";
-    </style>
+	<html lang="en" dir="ltr">
+		<head>
+			<title>FlightRoute</title>
+			<!-- Bootstrap -->
+			<link href="bootstrapSrc/docs/assets/css/bootstrap.css" rel="stylesheet">
+			<style type="text/css">
+				@import "flightRoute.css";
+			</style>
 
+			<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 
-<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+			<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+			<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyBVBMCQhDkUdOVjygNgnLzs-QnVAMqLejI&sensor=false&libraries=drawing,geometry"></script>
+			<script src="bootstrap/js/bootstrap.min.js"></script>
 
+			<style>
+				body {
+					font-size: 14px;
+					font-family: arial;
+					line-height: 20px;
+				}
+				#map_canvas {
+					float: left;
+					width: 500px;
+					height: 400px;
+					margin: 10px;
+				}
+			</style>
 
+			<!-- Le styles -->
+			<link href="bootstrapSrc/docs/assets/css/bootstrap.css" rel="stylesheet">
+			<style>
+				body {
+					padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+				}
+			</style>
+			<link href="bootstrapSrc/docs/assets/css/bootstrap-responsive.css" rel="stylesheet">
 
-<script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyBVBMCQhDkUdOVjygNgnLzs-QnVAMqLejI&sensor=false&libraries=drawing,geometry"></script>
-<script src="bootstrap/js/bootstrap.min.js"></script>
+			<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+			<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+			<![endif]-->
 
+			<!-- Fav and touch icons -->
+			<link rel="shortcut icon" href="../assets/ico/favicon.ico">
+			<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+			<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+			<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+			<link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
 
+		</head>
 
-<style>
-body { font-size: 14px; font-family:arial; line-height:20px;}
-#map_canvas { float:left; width:500px; height:400px; margin:10px;}
-</style>
-</head>
-        
-<!-- <body onload="load();"> -->
+		<!-- <body onload="load();"> -->
+		<body>
+			<div class="navbar navbar-inverse navbar-fixed-top">
+				<div class="navbar-inner">
+					<div class="container">
+						<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+						<a class="brand" href="#">Project name</a>
+						<div class="nav-collapse collapse">
+							<ul class="nav">
+								<li class="active">
+									<a href="#">Home</a>
+								</li>
+								<li>
+									<a href="#about">About</a>
+								</li>
+								<li>
+									<a href="#contact">Contact</a>
+								</li>
+							</ul>
+						</div><!--/.nav-collapse -->
+					</div>
+				</div>
+			</div>
 
-<input type='button' id='addruler' onclick='addruler();' value='add a ruler'/>
+			<div class="container">
 
-                  
-            
-<table class="table" >
-    <tr>
-        <td valign="top">
-            <div id="map_canvas"></div>
-            <div id="chart_div" style="width:512px; height:200px" onmouseout="clearMouseMarker()"></div>
-        </td>
-        <td valign="top">
-                            
-                            
-            <div class="wText" id="coords"></div>
-            <div  id="dist">distance: </div>
-            <div class="wText" id="route">Route points:<br></div>
-				    
-				    
-	    <input type="button" value="Add Row" onclick="addWaypoint('1')" />
-	    <input type="button" value="Add Alternate" onclick="setAlternate('1')" />
-	    <input type="button" value="Delete Row" onclick="removeWaypoint()" />
-		idx: <input type="text" id="index"> 
-				    
-		<table class="table table-striped table-hover" id="waypointTable">
+				<h1>Bootstrap starter template</h1>
+				<p>
+					Use this document as a way to quick start any new project.
+					<br>
+					All you get is this message and a barebones HTML document.
+				</p>
 
-		
-		    <tr>
-			<th>  Freq: </th>
-			<th>  C/S: </th>
-			<th>  WayPoint: </th>
-			<th>  MT: </th>
-			<th>  ALT: </th>
-			<th>  DIST: </th>
-			<th>  EET: </th>
-			<th>  ETO: </th>
-			<th>  ATO: </th>
-			<th>  Remark: </th>
-		    </tr>
-		   
+			</div>
+			<!-- /container -->
 
+			<div class="container">
+				<div class="row">
+					<div class="span8">
+						<input type='button' id='addruler' onclick='addruler();' value='add a ruler'/>
+						<p>
+							<button id="fat-btn" data-loading-text="loading..." class="btn btn-primary">
+								Loading State
+							</button>
+							<input type="text" id="index">
+							<button type="button" class="btn" data-toggle="button">
+								Single Toggle
+							</button>
+							<button type="button" class="btn btn-primary" data-loading-text="Loading...">
+								Loading state
+							</button>
+						</p>
+						<div class="input-append">
+							<input class="span2" id="appendedInputButton" type="text">
 
-		    <!--<tr>
-			    <td><input type="checkbox" name="chk"/></td>
-			    <td> 1 </td>
-			    <td> <input type="text" /> </td>
-		    </tr>-->
-		</table>
-				    
-		<div id="TotTrip">
-		    Total Time: <input type="text" id="totTrip"> min.
-		</div>
-				    
-		<div id="TotDist">
-		    Total Dist : <input type="text" id="totDist"> NM.
-		</div>
-				    
-		<table class="table table-striped table-hover" id="alternateTable" >
+							<button class="btn" type="button">
+								Go!
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="span6">
 
-		<thead>
-		    <tr>
-			<th>  Freq: </th>
-			<th>  C/S: </th>
-			<th>  WayPoint: </th>
-			<th>  MT: </th>
-			<th>  ALT: </th>
-			<th>  DIST: </th>
-			<th>  EET: </th>
-			<th>  ETO: </th>
-			<th>  ATO: </th>
-			<th>  Remark: </th>
-		    </tr>
-		</thead>
-		  <tbody>
-		    <tr>
-			<td>  12 </td>
-			<td>  sfg </td>
-		    </tr>
-		    		    <tr>
-			<td>  234 </td>
-			<td>  rrd </td>
-		    </tr>
-		    </tbody>
-		</table>
-				    
-		<div id="TotAlternate">
-		    Total Alternate: <input type="text" "readonly" id="totAlternate"> min.
-		</div>
-				    
-	</td>
-    </tr>
-</table>
+						<td valign="top"><div id="map_canvas"></div><div id="chart_div" style="width:512px; height:200px" onmouseout="clearMouseMarker()"></div></td>
+						<td valign="top"><div class="wText" id="coords"></div>
+					</div>
+					
+					<div class="span6">
+						<table class="table table-striped table-hover table-bordered table-condensed" id="waypointTable">
 
-<div id="chart_div" style="width:512px; height:200px" onmouseout="clearMouseMarker()"></div>            
+							<tr>
+								<th> Waypoint: </th>
+								<th> Coord: </th>
+								<th> MT: </th>
+								<th> ALT: </th>
+								<th> DIST: </th>
+								<th> EET: </th>
+								<th> ETO: </th>
+								<th> ATO: </th>
+								<th> Remark: </th>
+							</tr>
 
-<div class="wd-expando">
-    <h2>Quicklinks 1</h2>
-      <ol>
-        <li>Link 1</li>
-        <li>Link 2</li>
-        <li>Link 3</li>
-        <li>Link 4</li>
-        <li>Link 5</li>
-      </ol>
-    </div>
-        
-   <script src="utility.js"></script>
-   <script src="flightTable.js"></script>
-   <script src="flightRoute.js"></script>
-  </body>
-</html>
+							<!--<tr>
+							<td><input type="checkbox" name="chk"/></td>
+							<td> 1 </td>
+							<td> <input type="text" /> </td>
+							</tr>-->
+						</table>
+
+						<div class="input-prepend input-append">
+							<span class="add-on">Tot Time</span>
+							<input class="span1" id="appendedPrependedInput" type="text">
+							<span class="add-on">Min</span>
+						</div>
+						<div class="input-prepend input-append">
+							<span class="add-on " >Tot Dist </span>
+							<input class="span1" id="appendedPrependedInput" type="text">
+							<span class="add-on">NM</span>
+						</div>
+						<div id="TotDist">
+							Total Dist :
+							<input type="text" id="totDist">
+							NM.
+						</div>
+						<label class="checkbox">
+							<input type="checkbox" value="">
+							Alternate </label>
+						<table class="table table-striped table-hover" id="alternateTable" >
+
+							<thead>
+								<tr>
+									<th> Waypoint: </th>
+									<th> Coord: </th>
+									<th> MT: </th>
+									<th> ALT: </th>
+									<th> DIST: </th>
+									<th> EET: </th>
+									<th> ETO: </th>
+									<th> ATO: </th>
+									<th> Remark: </th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td> 12 </td>
+									<td> sfg </td>
+								</tr>
+								<tr>
+									<td> 234 </td>
+									<td> rrd </td>
+								</tr>
+							</tbody>
+						</table>
+						<div id="TotAlternate">
+							Total Alternate:
+							<input type="text" "readonly" id="totAlternate">
+							min.
+						</div></td>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="span8">
+
+						<div id="chart_div" style="width:512px; height:200px" onmouseout="clearMouseMarker()"></div>
+					</div>
+					<div class="span4">
+						<textarea rows="3" id="textArea"></textarea>
+					</div>
+				</div>
+				<div class="row">
+					<div class="span8">
+						<div class="wd-expando">
+							<h2>Quicklinks 1</h2>
+							<ol>
+								<li>
+									Link 1
+								</li>
+								<li>
+									Link 2
+								</li>
+								<li>
+									Link 3
+								</li>
+								<li>
+									Link 4
+								</li>
+								<li>
+									Link 5
+								</li>
+							</ol>
+						</div>
+
+						<h2>Example of Bootstrap Button JavaScript Plugin</h2>
+						<h3>Control state</h3>
+						<p>
+							<button id="fat-btn" data-loading-text="loading..." class="btn btn-primary">
+								Loading State
+							</button>
+						</p>
+						<h3>Single toggle</h3>
+						<p>
+							<button class="btn btn-primary" data-toggle="button">
+								Single Toggle
+							</button>
+						</p>
+						<h3>Checkbox</h3>
+						<p>
+							<div class="btn-group" data-toggle="buttons-checkbox">
+								<button class="btn btn-primary">
+									Left
+								</button>
+								<button class="btn btn-primary">
+									Middle
+								</button>
+								<button class="btn btn-primary">
+									Right
+								</button>
+							</div>
+						</p>
+						<h3>Radio</h3>
+						<p>
+							<div class="btn-group" data-toggle="buttons-radio">
+								<button class="btn btn-primary">
+									Left
+								</button>
+								<button class="btn btn-primary">
+									Middle
+								</button>
+								<button class="btn btn-primary">
+									Right
+								</button>
+							</div>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<script src="utility.js"></script>
+			<script src="utility.js"></script>
+			<script src="flightTable.js"></script>
+			<script src="flightRoute.js"></script>
+
+			<!-- Le javascript
+			================================================== -->
+			<!-- Placed at the end of the document so the pages load faster -->
+			<script src="bootstrapSrc/docs/assets/js/jquery.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-transition.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-alert.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-modal.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-dropdown.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-scrollspy.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-tab.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-tooltip.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-popover.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-button.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-collapse.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-carousel.js"></script>
+			<script src="bootstrapSrc/docs/assets/js/bootstrap-typeahead.js"></script>
+
+		</body>
+	</html>
