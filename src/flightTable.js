@@ -2,7 +2,7 @@
 //******************************************
 var geocoderService = null;
 var directionsService = null;
-var KM2NM = 1.852;
+KM2NM = 1.852;
 
 function FlightTable()
 {
