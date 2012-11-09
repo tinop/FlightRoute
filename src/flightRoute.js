@@ -51,7 +51,7 @@ function load()
 {
 	// Starting marker
 	mollis = new google.maps.LatLng(47.08, 9.066);
-	alternate = new google.maps.LatLng(47.09, 9.08);
+	alternate = new google.maps.LatLng(47.205, 8.867);
 	
    // map options
    var myOptions =
@@ -453,7 +453,7 @@ function drawPath(setMarker)
 // or submit a directions request for the path between points
 function updateElevation()
 {
-   if (mFlightTable.size() > 1000)
+   if (mFlightTable.size() > 1)
    {
       //var travelMode = document.getElementById("mode").value;
       //if (travelMode != 'direct') {
@@ -553,7 +553,7 @@ function setLatLong (latlng,table, i , alternate)
 
             locationName = currentAddress.split(",");
             
-            document.getElementById('textArea').value = locationName[0];
+            //document.getElementById('textArea').value = locationName[0];
             //var table = document.getElementById('waypointTable');
             //var tbody = document.getElementById('waypointTable').getElementsByTagName("tbody")[0];
             //var i = 0;
