@@ -44,8 +44,15 @@ FlightTable.prototype.addMarker = function(marker)
 
 FlightTable.prototype.removeMarker = function(marker)
 {
-
-   this.waypointArray.splice(this.getMarkerIndex(marker), 1);
+	var indexToRemove = this.getMarkerIndex(marker);
+	this.waypointArray.splice(indexToRemove, 1);
+	
+	// decrement the currentIndex if it points after the removed marker
+	if(this.currentIndex > indexToRemove)
+	{
+		this.currentIndex--;
+	}
+   
 }
 //******************************************
 // update the address of a waypoint
@@ -128,7 +135,7 @@ FlightTable.prototype.getMT = function(index1, index2)
 {
 	var pos1 = this.waypointArray[index1].marker.getPosition();   var pos2 = this.waypointArray[index2].marker.getPosition();
 	var heading = google.maps.geometry.spherical.computeHeading(pos1, pos2);
-	return heading;
+	return Math.round(heading);
 }
 
 FlightTable.prototype.getDistance = function(index1, index2)
@@ -136,8 +143,8 @@ FlightTable.prototype.getDistance = function(index1, index2)
 	var pos1 = this.waypointArray[index1].marker.getPosition();
    var pos2 = this.waypointArray[index2].marker.getPosition();
 
-	var distance = google.maps.geometry.spherical.computeDistanceBetween(pos1, pos2)/1000*KM2NM;
-	return distance;
+	var distance = google.maps.geometry.spherical.computeDistanceBetween(pos1, pos2)/1000/KM2NM;
+	return Math.ceil(distance);
 }
 
 

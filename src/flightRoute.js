@@ -45,16 +45,17 @@ google.setOnLoadCallback(load);
 
 function load()
 {
-
-
-
+	// Starting marker
+	mollis = new google.maps.LatLng(47.08, 9.066);
+	
    // map options
    var myOptions =
    {
       center : new google.maps.LatLng(46.5, 8),
       zoom : 8,
       mapTypeId : google.maps.MapTypeId.ROADMAP,
-      draggableCursor : 'crosshair'
+      draggableCursor : 'crosshair',
+      center : mollis
    };
 
    // create map
@@ -90,11 +91,14 @@ function load()
       }
    });
 
+	document.getElementById('inputSpeed').value = '100';
+
    // display fields in the map
    //map.controls[google.maps.ControlPosition.TOP].push(document.getElementById('info'));
    mFlightTable = new FlightTable();
-   addMarker(map.getCenter(), true);
-
+   
+   addMarker(mollis, true);
+	
    var polyOptions =
    {
       strokeColor : '#FF0000',
@@ -127,8 +131,6 @@ function addMarker(latLng, doQuery)
       drawPath(false);
       updateTable();
       setLatLong (marker.getPosition(),mFlightTable.getMarkerIndex(marker));
-      //mFlightTable.updateAddress(mFlightTable.getMarkerIndex(marker));
-      //codeLatLng(marker.getPosition());
    });
 
    google.maps.event.addListener(marker, 'dragstart', function(e)
@@ -154,12 +156,15 @@ function addMarker(latLng, doQuery)
    google.maps.event.addListener(marker, 'rightclick', function(e)
    {
       marker.setMap(null);
-      removeWaypoint(marker);
-      marker = null;
+      mFlightTable.removeMarker(marker);
+   	drawPath(true);
+   	updateTable();
+      //marker = null;
    });
 
    // add marker to the array
    mFlightTable.addMarker(marker);
+      updateTable();
    setLatLong (marker.getPosition(),mFlightTable.getMarkerIndex(marker));
 
    //mFlightTable.updateAddress(mFlightTable.getMarkerIndex(marker));
@@ -171,18 +176,17 @@ function addMarker(latLng, doQuery)
    }, 0);
 
    //drawPath();
-   updateTable();
+
 }
 
 function updateTable()
 {
+	console.log('updateTable');
    deleteTable();
-
-
 
    //addTableRow(mFlightTable.getWaypoint(0).marker, null);
 
-   if (mFlightTable.size() > 1)
+   if (mFlightTable.size() > 0)
    {
       for (var i = 0; i < mFlightTable.size(); i++)
       {
@@ -250,13 +254,13 @@ function addTableRow(waypoint)
 	dist = waypoint.dist; 
 
    var cell6 = newRow.insertCell(4);
-   cell6.innerHTML = dist.toFixed(1);
+   cell6.innerHTML = dist;//.toFixed(0);
 
    // EET
-   var speed = 90;
+   var speed = document.getElementById('inputSpeed').value;
 
    var cell7 = newRow.insertCell(5);
-   cell7.innerHTML = (dist / speed * 60).toFixed(1);
+   cell7.innerHTML = Math.ceil(dist / speed * 60);
    
    // ETO
    var cell8 = newRow.insertCell(6);
@@ -300,13 +304,6 @@ function setAlternate()
 
 }
 
-// unused yet
-function removeWaypoint(marker)
-{
-   mFlightTable.removeMarker(marker);
-   drawPath(true);
-   updateTable();
-}
 
 function getMT(marker1, marker2)
 {
@@ -326,36 +323,24 @@ function updateTotalTrip()
 {
    totTripTime = 0;
    totTripDist = 0;
-   try
+
+   if (mFlightTable.size() > 0)
    {
-      var table = document.getElementById('waypointTable');
-      var rowCount = table.rows.length;
-
-      for (var i = 2; i < rowCount; i++)
+      for (var i = 0; i < mFlightTable.size(); i++)
       {
-
-         var row = table.rows[i];
-
-         // distance
-         var dist = row.cells[4].childNodes[0];
-         if (null != dist)
-         {
-            totTripDist += parseInt(dist.value);
-         }
-
-         // time
-         var time = row.cells[5].childNodes[0];
-
-         totTripTime += parseInt(time.value);
-
+         totTripDist +=  mFlightTable.getWaypoint(i).dist;
       }
    }
-   catch(e)
-   {
-      alert(e);
-   }
 
-   //document.getElementById("totTrip").value = totTripTime.toString();
+
+   document.getElementById("totDist").value = Math.ceil(totTripDist).toString();
+   
+   var speed = document.getElementById('inputSpeed').value;
+
+   document.getElementById("totTime").value = Math.ceil(totTripDist / speed * 60);
+;
+
+
    //document.getElementById("dist").value = 'Total Distance: '+ totalDistance.toFixed(3)+ ' NM';
   //document.getElementById("totDist").value = totTripDist.toString();
 
@@ -416,7 +401,7 @@ function drawPath(setMarker)
 // or submit a directions request for the path between points
 function updateElevation()
 {
-   if (mFlightTable.size() > 1)
+   if (mFlightTable.size() > 1000)
    {
       //var travelMode = document.getElementById("mode").value;
       //if (travelMode != 'direct') {
