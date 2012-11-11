@@ -31,6 +31,13 @@ var totTripTime;
 var totAlternateTime;
 var totTripDist;
 
+/*******/
+// UI elements
+var ui_elevationChart = null;
+var ui_mapCanvas = null;
+var ui_speedInput = null;
+var ui_waypointTable = null;
+var ui_alternateTable = null;
 
 // Load the Visualization API and the piechart package.
 google.load("visualization", "1",
@@ -49,6 +56,13 @@ google.setOnLoadCallback(load);
 
 function load()
 {
+	ui_mapCanvas = document.getElementById("map_canvas");
+	ui_elevationChart = document.getElementById('chart_div');
+	ui_speedInput = document.getElementById('inputSpeed');
+	ui_waypointTable = document.getElementById('waypointTable');
+	ui_alternateTable = document.getElementById('alternateTable');
+	
+	
 	// Starting marker
 	mollis = new google.maps.LatLng(47.08, 9.066);
 	alternate = new google.maps.LatLng(47.205, 8.867);
@@ -64,7 +78,7 @@ function load()
    };
 
    // create map
-   map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+   map = new google.maps.Map(ui_mapCanvas, myOptions);
 
    // map click listener
    google.maps.event.addListener(map, 'click', function(event)
@@ -73,7 +87,8 @@ function load()
    });
 
    // Alt chart
-   chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+   chart = new google.visualization.ColumnChart(ui_elevationChart);
+   
 
    geocoderService = new google.maps.Geocoder();
    elevationService = new google.maps.ElevationService();
@@ -96,7 +111,7 @@ function load()
       }
    });
 
-	document.getElementById('inputSpeed').value = '100';
+	ui_speedInput.value = '100';
 
    // display fields in the map
    //map.controls[google.maps.ControlPosition.TOP].push(document.getElementById('info'));
@@ -144,9 +159,8 @@ function addMarker(latLng, doQuery)
 
       drawPath(false);
       updateTable();
-      
-      var table = document.getElementById('waypointTable');
-      setLatLong (marker.getPosition(), table, mFlightTable.getMarkerIndex(marker),false);
+   
+      setLatLong (marker.getPosition(), ui_waypointTable, mFlightTable.getMarkerIndex(marker),false);
    });
 
    google.maps.event.addListener(marker, 'dragstart', function(e)
@@ -182,8 +196,7 @@ function addMarker(latLng, doQuery)
    mFlightTable.addMarker(marker);
    updateTable();
    
-   var table = document.getElementById('waypointTable');
-   setLatLong (marker.getPosition(), table, mFlightTable.getMarkerIndex(marker), false);
+   setLatLong (marker.getPosition(), ui_waypointTable, mFlightTable.getMarkerIndex(marker), false);
 
    //mFlightTable.updateAddress(mFlightTable.getMarkerIndex(marker));
    //codeLatLng(marker.getPosition());
@@ -216,8 +229,7 @@ function addAlternateMarker(latLng)
 
       drawPath(false);
       updateTable();
-      var table = document.getElementById('alternateTable');
-   	setLatLong (mAlternateMarker.getPosition(), table, 0, true);
+   	setLatLong (mAlternateMarker.getPosition(), ui_alternateTable, 0, true);
    });
 
 
@@ -228,8 +240,7 @@ function addAlternateMarker(latLng)
 
 
    //updateAlternateTable();
-   var table = document.getElementById('alternateTable');
-   setLatLong (mAlternateMarker.getPosition(), table, 0, true);
+   setLatLong (mAlternateMarker.getPosition(), ui_alternateTable, 0, true);
    setTimeout(function()
    {
       drawPath(true);
@@ -248,17 +259,15 @@ function updateTable()
 
    //addTableRow(mFlightTable.getWaypoint(0).marker, null);
 
-	var table = document.getElementById('waypointTable');
    if (mFlightTable.size() > 0)
    {
       for (var i = 0; i < mFlightTable.size(); i++)
       {
-         addTableRow(table, mFlightTable.getWaypoint(i));
+         addTableRow(ui_waypointTable, mFlightTable.getWaypoint(i));
       }
    }
    
    // Alternate table
-   var tableAlt = document.getElementById('alternateTable');
    var destinationMarker = mFlightTable.getWaypoint(mFlightTable.size()-1).marker;
 
 	var heading = google.maps.geometry.spherical.computeHeading(destinationMarker.getPosition(), mAlternateWaypoint.marker.getPosition());
@@ -267,12 +276,12 @@ function updateTable()
 	var distance = google.maps.geometry.spherical.computeDistanceBetween(destinationMarker.getPosition(), mAlternateWaypoint.marker.getPosition())/1000/KM2NM;
 	mAlternateWaypoint.dist = Math.ceil(distance);
 	
-   if(tableAlt.rows.length>1)
+   if(ui_alternateTable.rows.length>1)
    {
-   	tableAlt.deleteRow(1);
+   	ui_alternateTable.deleteRow(1);
    }
    
-   addTableRow(tableAlt, mAlternateWaypoint);
+   addTableRow(ui_alternateTable, mAlternateWaypoint);
 
 
    // 2. update fileds
@@ -281,12 +290,10 @@ function updateTable()
 
 function deleteTable()
 {
-   var table = document.getElementById("waypointTable");
-
    //or use : var table = document.all.tableid;
-   for (var i = table.rows.length - 1; i > 0; i--)
+   for (var i = ui_waypointTable.rows.length - 1; i > 0; i--)
    {
-      table.deleteRow(i);
+      ui_waypointTable.deleteRow(i);
    }
 
 }
@@ -338,7 +345,7 @@ function addTableRow(table, waypoint)
    cell6.innerHTML = dist;//.toFixed(0);
 
    // EET
-   var speed = document.getElementById('inputSpeed').value;
+   var speed = ui_speedInput.value;
 
    var cell7 = newRow.insertCell(5);
    cell7.innerHTML = Math.ceil(dist / speed * 60);
@@ -382,7 +389,7 @@ function updateTotalTrip()
 
    document.getElementById("totDist").value = Math.ceil(totTripDist).toString();
    
-   var speed = document.getElementById('inputSpeed').value;
+   var speed = ui_speedInput.value;
 
    document.getElementById("totTime").value = Math.ceil(totTripDist / speed * 60);
 ;
@@ -498,7 +505,7 @@ function plotElevation(results)
    {
       data.addRow(['', elevations[i].elevation]);
    }
-   document.getElementById('chart_div').style.display = 'block';
+   ui_elevationChart.style.display = 'block';
    chart.draw(data,
    {
       width : 512,
